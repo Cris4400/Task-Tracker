@@ -1,0 +1,14 @@
+C:\Users\sousa\Desktop\Task-Traker\bin\Debug\net8.0\Task-Traker.exe
+C:\Users\sousa\Desktop\Task-Traker\bin\Debug\net8.0\Task-Traker.deps.json
+C:\Users\sousa\Desktop\Task-Traker\bin\Debug\net8.0\Task-Traker.runtimeconfig.json
+C:\Users\sousa\Desktop\Task-Traker\bin\Debug\net8.0\Task-Traker.dll
+C:\Users\sousa\Desktop\Task-Traker\bin\Debug\net8.0\Task-Traker.pdb
+C:\Users\sousa\Desktop\Task-Traker\obj\Debug\net8.0\Task-Traker.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\sousa\Desktop\Task-Traker\obj\Debug\net8.0\Task-Traker.AssemblyInfoInputs.cache
+C:\Users\sousa\Desktop\Task-Traker\obj\Debug\net8.0\Task-Traker.AssemblyInfo.cs
+C:\Users\sousa\Desktop\Task-Traker\obj\Debug\net8.0\Task-Traker.csproj.CoreCompileInputs.cache
+C:\Users\sousa\Desktop\Task-Traker\obj\Debug\net8.0\Task-Traker.dll
+C:\Users\sousa\Desktop\Task-Traker\obj\Debug\net8.0\refint\Task-Traker.dll
+C:\Users\sousa\Desktop\Task-Traker\obj\Debug\net8.0\Task-Traker.pdb
+C:\Users\sousa\Desktop\Task-Traker\obj\Debug\net8.0\Task-Traker.genruntimeconfig.cache
+C:\Users\sousa\Desktop\Task-Traker\obj\Debug\net8.0\ref\Task-Traker.dll
