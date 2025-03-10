@@ -1,16 +1,16 @@
 [
 	{
 		"id": 1,
-		"description": "Tarea de prueba",
+		"description": "Tarea de prueba actualizada",
 		"status": "todo",
-		"createdAt": "09/03/2025 21:01:26",
-		"updatedAt": ""
+		"createdAt": "10/03/2025 2:23:26",
+		"updatedAt": "10/03/2025 2:23:27"
 	},
 	{
-		"id": 2,
+		"id": 3,
 		"description": "Tarea de prueba",
 		"status": "in_progress",
-		"createdAt": "09/03/2025 21:01:26",
-		"updatedAt": "09/03/2025 21:01:26"
+		"createdAt": "10/03/2025 2:23:26",
+		"updatedAt": "10/03/2025 2:23:27"
 	}
 ]
