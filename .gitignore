@@ -37,4 +37,4 @@ secrets.json
 
 publish/
 
-.jsonl
+*.jsonl
