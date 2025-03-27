@@ -111,6 +111,7 @@ public static class TaskManager
             Console.WriteLine($"An error ocurred interacting with {Constants.JSONL_FILE_PATH} file.\nDetails:{e.Message}");
         }
 
+        Console.WriteLine($"Does not exists a task with ID {id}.");
         return false;
     }
 
@@ -152,6 +153,7 @@ public static class TaskManager
             }
         }
 
+        Console.WriteLine($"Does not exists a task with ID {id}.");
         return false;
     }
 

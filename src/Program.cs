@@ -6,7 +6,7 @@
         {
             if (args.Length == 0)
             {
-                Console.WriteLine(Constants.HELP_COMMAND);
+                PrintUsage("");
                 return;
             }
 
@@ -18,7 +18,7 @@
                         TaskModel task = new TaskModel { Id = TaskManager.GetLastId(), Description = args[1] };
                         TaskManager.AddTask(task);
                     }
-                    else Console.WriteLine(Constants.ADD_COMMAND_HELP);
+                    else PrintUsage(Constants.ADD_COMMAND_HELP);
                     break;
 
                 case Constants.UPDATE_COMMAND:
@@ -31,11 +31,11 @@
                         int id;
                         bool parsed = int.TryParse(args[1], out id);
                         if (parsed) TaskManager.DeleteTask(id);
-                        else Console.WriteLine(Constants.DELETE_COMMAND_HELP);
+                        else PrintUsage(Constants.DELETE_COMMAND_HELP);
                     }
                     else
                     {
-                        Console.WriteLine(Constants.DELETE_COMMAND_HELP);
+                        PrintUsage(Constants.DELETE_COMMAND_HELP);
                     }
                     break;
 
@@ -52,13 +52,13 @@
                     else if (args.Length == Constants.TWO_ARGS)
                     {
                         if (Enum.TryParse(args[1], out TaskStatus status)) ListTasks(TaskManager.GetTasks(status));
-                        else Console.WriteLine(Constants.LIST_COMMAND_HELP);
+                        else PrintUsage(Constants.LIST_COMMAND_HELP);
                     }
-                    else Console.WriteLine(Constants.LIST_COMMAND_HELP);
+                    else PrintUsage(Constants.LIST_COMMAND_HELP);
                     break;
 
                 default:
-                    Console.WriteLine(Constants.HELP_COMMAND);
+                    PrintUsage(Constants.HELP_COMMAND);
                     break;
             }
         }
@@ -78,7 +78,7 @@
             return;
         }
 
-        Console.WriteLine(help);
+        PrintUsage(help);
     }
 
     static void ListTasks(List<TaskModel> tasks)
@@ -88,4 +88,19 @@
             Console.WriteLine(task);
         }
     }
+
+    static void PrintUsage(string command)
+    {
+        Console.WriteLine(command switch
+        {
+            Constants.ADD_COMMAND => Constants.ADD_COMMAND_HELP,
+            Constants.UPDATE_COMMAND => Constants.UPDATE_COMMAND_HELP,
+            Constants.DELETE_COMMAND => Constants.DELETE_COMMAND_HELP,
+            Constants.MIP_COMMAND => Constants.MIP_COMMAND_HELP,
+            Constants.MD_COMMAND => Constants.MD_COMMAND_HELP,
+            Constants.LIST_COMMAND => Constants.LIST_COMMAND_HELP,
+            _ => Constants.HELP_COMMAND
+        });
+    }
+
 }
