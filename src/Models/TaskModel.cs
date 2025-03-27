@@ -9,7 +9,7 @@ public enum TaskStatus
 
 public class TaskModel
 {
-    public int Id { get; set; } = TaskManager.GetLastId();
+    public required int Id { get; set; }
     public required string Description { get; set; }
     public TaskStatus Status { get; set; } = TaskStatus.todo;
     public DateTime CreatedAt { get; set; } = DateTime.Now;

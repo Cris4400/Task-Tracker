@@ -1,10 +1,5 @@
 using System.Text.Json;
 
-static class Constants
-{
-    public static string JSONL_FILE_PATH = "data.jsonl";
-}
-
 public static class TaskManager
 {
     public static void AddTask(TaskModel task)
@@ -14,6 +9,7 @@ public static class TaskManager
         try
         {
             File.AppendAllText(Constants.JSONL_FILE_PATH, taskJson + Environment.NewLine);
+            Console.WriteLine($"Task added successfully (ID: {task.Id})");
         }
         catch (Exception e)
         {
