@@ -1,30 +1,47 @@
 using System.Text.Json;
+using Microsoft.VisualBasic;
 
 public static class TaskManager
 {
-    public static void AddTask(TaskModel task)
+    public static Result AddTask(TaskModel task)
     {
-        string taskJson = JsonSerializer.Serialize(task);
-
         try
         {
-            File.AppendAllText(Constants.JSONL_FILE_PATH, taskJson + Environment.NewLine);
-            Console.WriteLine($"Task added successfully (ID: {task.Id})");
+            string taskJson = JsonSerializer.Serialize(task);
+            File.AppendAllText(FileConstants.JSONL_FILE_PATH, taskJson + Environment.NewLine);
+        }
+        catch (UnauthorizedAccessException e)
+        {
+            return Result.Failure($"File {FileConstants.JSONL_FILE_PATH} is not accessible.\nDetails: {e.Message}", null);
+        }
+        catch (NotSupportedException e)
+        {
+            return Result.Failure($"An error occurred while writing the file {FileConstants.JSONL_FILE_PATH}.\nDetails: {e.Message}", null);
+        }
+        catch (IOException e)
+        {
+            return Result.Failure($"An error occurred while writing the file {FileConstants.JSONL_FILE_PATH}.\nDetails: {e.Message}", null);
+        }
+        catch (JsonException e)
+        {
+            return Result.Failure($"An error ocurred trying to serialize a line.\nDetails: {e.Message}", null);
         }
         catch (Exception e)
         {
-            Console.WriteLine($"An error ocurred interacting with {Constants.JSONL_FILE_PATH} file.\nDetails:{e.Message}");
+            return Result.Failure(e.Message, null);
         }
+
+        return Result.Success($"Task added successfully (ID: {task.Id}).", null);
     }
 
-    public static List<TaskModel> GetTasks(TaskStatus? taskStatus)
+    public static Result GetTasks(TaskStatus? taskStatus)
     {
         List<TaskModel> tasks = new List<TaskModel>();
         try
         {
-            foreach (string line in File.ReadLines(Constants.JSONL_FILE_PATH))
+            if (File.Exists(FileConstants.JSONL_FILE_PATH))
             {
-                try
+                foreach (string line in File.ReadLines(FileConstants.JSONL_FILE_PATH))
                 {
                     TaskModel? task = JsonSerializer.Deserialize<TaskModel>(line);
 
@@ -33,139 +50,179 @@ public static class TaskManager
 
                     tasks.Add(task);
                 }
-                catch (JsonException e)
-                {
-                    Console.WriteLine($"An error ocurred trying to deserialize line: {line}\nDetails:{e.Message}");
-                }
             }
+            else
+            {
+                return Result.Failure($"File {FileConstants.JSONL_FILE_PATH} does not exist.", null);
+            }
+        }
+        catch (UnauthorizedAccessException e)
+        {
+            return Result.Failure($"File {FileConstants.JSONL_FILE_PATH} is not accessible.\nDetails: {e.Message}", null);
+        }
+        catch (NotSupportedException e)
+        {
+            return Result.Failure($"An error occurred while reading the file {FileConstants.JSONL_FILE_PATH}.\nDetails: {e.Message}", null);
+        }
+        catch (IOException e)
+        {
+            return Result.Failure($"An error occurred while reading the file {FileConstants.JSONL_FILE_PATH}.\nDetails: {e.Message}", null);
+        }
+        catch (JsonException e)
+        {
+            return Result.Failure($"An error ocurred trying to deserialize a line.\nDetails: {e.Message}", null);
         }
         catch (Exception e)
         {
-            Console.WriteLine($"An error ocurred interacting with {Constants.JSONL_FILE_PATH} file.\nDetails:{e.Message}");
+            return Result.Failure(e.Message, null);
         }
 
-        return tasks;
+        return Result.Success("Tasks retrieved successfully.", tasks);
     }
 
-    public static bool UpdateTask(int id, string property, object value)
+    public static Result UpdateTask(int id, string property, object value)
     {
         bool exists = false;
         List<string> tasksLines = new List<string>();
 
-        if (property == nameof(TaskModel.Description) && value is not string) return false;
-        if (property == nameof(TaskModel.Status) && value is not TaskStatus) return false;
+        if (property == nameof(TaskModel.Description) && value is not string) return Result.Failure("Given description value is not a string.", null);
+        if (property == nameof(TaskModel.Status) && value is not TaskStatus) return Result.Failure("Given status value is not TaskModel status.", null);
 
         try
         {
-            if (File.Exists(Constants.JSONL_FILE_PATH))
+            if (File.Exists(FileConstants.JSONL_FILE_PATH))
             {
-                foreach (string line in File.ReadLines(Constants.JSONL_FILE_PATH))
+                foreach (string line in File.ReadLines(FileConstants.JSONL_FILE_PATH))
                 {
-                    try
+                    TaskModel? task = JsonSerializer.Deserialize<TaskModel>(line);
+                    string taskLine = line;
+
+                    if (task is not null && task.Id == id)
                     {
-                        TaskModel? task = JsonSerializer.Deserialize<TaskModel>(line);
-                        string taskLine = line;
+                        if (property == nameof(TaskModel.Description) && task.Description == (string)value) return Result.Failure($"Task (ID: {id}) already has that description.", null);
+                        if (property == nameof(TaskModel.Status) && task.Status.Equals((TaskStatus)value)) return Result.Failure($"Task (ID: {id}) already has that status.", null);
 
-                        if (task is not null && task.Id == id)
+                        exists = true;
+                        task.UpdatedAt = DateTime.Now;
+
+                        switch (property)
                         {
-                            if (property == nameof(TaskModel.Description) && task.Description == (string) value) return false;
-                            if (property == nameof(TaskModel.Status) && task.Status.Equals((TaskStatus) value)) return false;
+                            case nameof(TaskModel.Description):
+                                task.Description = (string)value;
+                                break;
 
-                            exists = true;
-                            task.UpdatedAt = DateTime.Now;
+                            case nameof(TaskModel.Status):
+                                task.Status = (TaskStatus)value;
+                                break;
 
-                            switch (property)
-                            {
-                                case nameof(TaskModel.Description):
-                                    task.Description = (string)value;
-                                    break;
-
-                                case nameof(TaskModel.Status):
-                                    task.Status = (TaskStatus)value;
-                                    break;
-
-                                default:
-                                    break;
-                            }
-
-                            taskLine = JsonSerializer.Serialize(task);
+                            default:
+                                break;
                         }
 
-                        tasksLines.Add(taskLine);
+                        taskLine = JsonSerializer.Serialize(task);
                     }
-                    catch (JsonException e)
-                    {
-                        Console.WriteLine($"An error ocurred trying to deserialize line: {line}\nDetails:{e.Message}");
-                    }
+
+                    tasksLines.Add(taskLine);
+                }
+
+                if (exists)
+                {
+                    File.WriteAllLines(FileConstants.JSONL_FILE_PATH, tasksLines);
+                    return Result.Success($"Task (ID: {id}) updated successfully.", null);
                 }
             }
-
-            if (exists)
+            else
             {
-                File.WriteAllLines(Constants.JSONL_FILE_PATH, tasksLines);
-                return true;
+                return Result.Failure($"File {FileConstants.JSONL_FILE_PATH} does not exist.", null);
             }
+        }
+        catch (UnauthorizedAccessException e)
+        {
+            return Result.Failure($"File {FileConstants.JSONL_FILE_PATH} is not accessible.\nDetails: {e.Message}", null);
+        }
+        catch (NotSupportedException e)
+        {
+            return Result.Failure($"An error occurred while reading the file {FileConstants.JSONL_FILE_PATH}.\nDetails: {e.Message}", null);
+        }
+        catch (IOException e)
+        {
+            return Result.Failure($"An error occurred while reading the file {FileConstants.JSONL_FILE_PATH}.\nDetails: {e.Message}", null);
+        }
+        catch (JsonException e)
+        {
+            return Result.Failure($"An error ocurred trying to deserialize a line.\nDetails: {e.Message}", null);
         }
         catch (Exception e)
         {
-            Console.WriteLine($"An error ocurred interacting with {Constants.JSONL_FILE_PATH} file.\nDetails:{e.Message}");
+            return Result.Failure(e.Message, null);
         }
 
-        Console.WriteLine($"Does not exists a task with ID {id}.");
-        return false;
+        return Result.Failure($"Task (ID: {id}) not found.", null);
     }
 
-    public static bool DeleteTask(int id)
+    public static Result DeleteTask(int id)
     {
         bool exists = false;
         List<string> tasksLines = new List<string>();
 
-        if (File.Exists(Constants.JSONL_FILE_PATH))
+        try
         {
-            try
+            if (File.Exists(FileConstants.JSONL_FILE_PATH))
             {
-                foreach (string line in File.ReadLines(Constants.JSONL_FILE_PATH))
+                foreach (string line in File.ReadLines(FileConstants.JSONL_FILE_PATH))
                 {
-                    try
+                    TaskModel? task = JsonSerializer.Deserialize<TaskModel>(line);
+                    if (task is not null)
                     {
-                        TaskModel? task = JsonSerializer.Deserialize<TaskModel>(line);
-                        if (task is not null)
-                        {
-                            if (task.Id != id) tasksLines.Add(line);
-                            else exists = true;
-                        }
-                    }
-                    catch (JsonException e)
-                    {
-                        Console.WriteLine($"Error deserializing task while deleting ID {id}: {line}\nDetails:{e.Message}");
+                        if (task.Id != id) tasksLines.Add(line);
+                        else exists = true;
                     }
                 }
 
                 if (exists)
                 {
-                    File.WriteAllLines(Constants.JSONL_FILE_PATH, tasksLines);
-                    return true;
+                    File.WriteAllLines(FileConstants.JSONL_FILE_PATH, tasksLines);
+                    return Result.Success($"Task (ID: {id}) deleted successfully.", null);
                 }
             }
-            catch (Exception e)
+            else
             {
-                Console.WriteLine($"An error ocurred interacting with {Constants.JSONL_FILE_PATH} file.\nDetails:{e.Message}");
+                return Result.Failure($"File {FileConstants.JSONL_FILE_PATH} does not exist.", null);
             }
         }
+        catch (UnauthorizedAccessException e)
+        {
+            return Result.Failure($"File {FileConstants.JSONL_FILE_PATH} is not accessible.\nDetails: {e.Message}", null);
+        }
+        catch (NotSupportedException e)
+        {
+            return Result.Failure($"An error occurred while reading the file {FileConstants.JSONL_FILE_PATH}.\nDetails: {e.Message}", null);
+        }
+        catch (IOException e)
+        {
+            return Result.Failure($"An error occurred while reading the file {FileConstants.JSONL_FILE_PATH}.\nDetails: {e.Message}", null);
+        }
+        catch (JsonException e)
+        {
+            return Result.Failure($"An error ocurred trying to deserialize a line.\nDetails: {e.Message}", null);
+        }
+        catch (Exception e)
+        {
+            return Result.Failure(e.Message, null);
+        }
 
-        Console.WriteLine($"Does not exists a task with ID {id}.");
-        return false;
+        return Result.Failure($"Task (ID: {id}) not found.", null);
     }
 
-    public static int GetLastId()
+    public static Result GetLastId()
     {
         int lastId = 1;
 
         try
         {
-            if (File.Exists(Constants.JSONL_FILE_PATH))
+            if (File.Exists(FileConstants.JSONL_FILE_PATH))
             {
-                string lastTask = File.ReadLines(Constants.JSONL_FILE_PATH).LastOrDefault(string.Empty);
+                string lastTask = File.ReadLines(FileConstants.JSONL_FILE_PATH).LastOrDefault(string.Empty);
 
                 if (!string.IsNullOrEmpty(lastTask))
                 {
@@ -174,15 +231,27 @@ public static class TaskManager
                 }
             }
         }
+        catch (UnauthorizedAccessException e)
+        {
+            return Result.Failure($"File {FileConstants.JSONL_FILE_PATH} is not accessible.\nDetails: {e.Message}", null);
+        }
+        catch (NotSupportedException e)
+        {
+            return Result.Failure($"An error occurred while reading the file {FileConstants.JSONL_FILE_PATH}.\nDetails: {e.Message}", null);
+        }
+        catch (IOException e)
+        {
+            return Result.Failure($"An error occurred while reading the file {FileConstants.JSONL_FILE_PATH}.\nDetails: {e.Message}", null);
+        }
         catch (JsonException e)
         {
-            Console.WriteLine($"An error ocurred trying to deserialize a line.\nDetails: {e.Message}");
+            return Result.Failure($"An error ocurred trying to deserialize a line.\nDetails: {e.Message}", null);
         }
         catch (Exception e)
         {
-            Console.WriteLine($"An error ocurred interacting with {Constants.JSONL_FILE_PATH} file.\nDetails:{e.Message}");
+            return Result.Failure(e.Message, null);
         }
 
-        return lastId;
+        return Result.Success($"Last ID retrieved: {lastId}.", lastId);
     }
 }
