@@ -11,10 +11,22 @@ public class TaskCliController
 {
     public readonly Dictionary<string, Action<string[]>> _commands;
 
+    /// <summary>
+    /// Constructor for the TaskCliController class.
+    /// Initializes the dictionary of commands with their corresponding actions.
+    /// </summary>
+    /// <remarks>
+    /// The constructor sets up the command dictionary with actions for each command.
+    /// Each action is responsible for handling the command's logic, including argument validation and result handling.
+    /// </remarks>
     public TaskCliController()
     {
         _commands = new Dictionary<string, Action<string[]>>
         {
+            /// <summary>
+            /// Handles the add command by checking the number of arguments and parsing the ID.
+            /// If the ID is valid, it calls the TaskManager to add a new task and prints the result message.
+            /// </summary>
             { CommandNames.Add, args => {
                 if(CheckArgsNumber(args.Length, ArgumentCounts.Two)){
                     Result result = TaskManager.GetLastId();
@@ -22,49 +34,73 @@ public class TaskCliController
                 }
                 else PrintUsage(CommandNames.Add);
             }},
+            /// <summary>
+            /// Handles the update command by checking the number of arguments and parsing the ID.
+            /// If the ID is valid, it calls the TaskManager to update the task and prints the result message.
+            /// </summary>
             { CommandNames.Update, args => {
-                if (CheckArgsNumber(args.Length, ArgumentCounts.Three) && ParseId(args[1], out int id)){
-                    Result result = TaskManager.UpdateTask(id, nameof(TaskModel.Description), args[2]);
+                if (CheckArgsNumber(args.Length, ArgumentCounts.Three) && ParseId(args[ArgumentCounts.One], out int id)){
+                    Result result = TaskManager.UpdateTask(id, nameof(TaskModel.Description), args[ArgumentCounts.Two]);
                     Console.WriteLine(result.Message);
                 }
                 else PrintUsage(CommandNames.Update);
             }},
+            /// <summary>
+            /// Handles the delete command by checking the number of arguments and parsing the ID.
+            /// If the ID is valid, it calls the TaskManager to delete the task and prints the result message.
+            /// </summary>
             { CommandNames.Delete, args => {
-                if (CheckArgsNumber(args.Length, ArgumentCounts.Two) && ParseId(args[1], out int id)){
+                if (CheckArgsNumber(args.Length, ArgumentCounts.Two) && ParseId(args[ArgumentCounts.One], out int id)){
                     Result result = TaskManager.DeleteTask(id);
                     Console.WriteLine(result.Message);
                 }
                 else PrintUsage(CommandNames.Delete);
             }},
+            /// <summary>
+            /// Handles the mark-in-progress command by checking the number of arguments and parsing the ID.
+            /// If the ID is valid, it calls the TaskManager to update the task status to "in progress" and prints the result message.
+            /// </summary>
             { CommandNames.MarkInProgress, args => {
-                if (CheckArgsNumber(args.Length, ArgumentCounts.Two) && ParseId(args[1], out int id)){
+                if (CheckArgsNumber(args.Length, ArgumentCounts.Two) && ParseId(args[ArgumentCounts.One], out int id)){
                     Result result = TaskManager.UpdateTask(id, nameof(TaskModel.Status), TaskStatus.in_progress);
                     Console.WriteLine(result.Message);
                 }
                 else PrintUsage(CommandNames.MarkInProgress);
             }},
+            /// <summary>
+            /// Handles the mark-done command by checking the number of arguments and parsing the ID.
+            /// If the ID is valid, it calls the TaskManager to update the task status to "done" and prints the result message.
+            /// </summary>
             { CommandNames.MarkDone, args => {
-                if (CheckArgsNumber(args.Length, ArgumentCounts.Two) && ParseId(args[1], out int id)){
+                if (CheckArgsNumber(args.Length, ArgumentCounts.Two) && ParseId(args[ArgumentCounts.One], out int id)){
                     Result result = TaskManager.UpdateTask(id, nameof(TaskModel.Status), TaskStatus.done);
                     Console.WriteLine(result.Message);
                 }
                 else PrintUsage(CommandNames.MarkDone);
             }},
+            /// <summary>
+            /// Handles the list command by checking the number of arguments and parsing the status if provided.
+            /// If the arguments are valid, it calls the TaskManager to get the tasks and prints them using the GetListTaskModelData method.    
+            /// </summary>
             { CommandNames.List, args => {
                 if (CheckArgsNumber(args.Length, ArgumentCounts.One)){
                     Result result = TaskManager.GetTasks(null);
                     HandleResult(result, GetListTaskModelData, args);
                 }
-                else if (CheckArgsNumber(args.Length, ArgumentCounts.Two) && ParseEnum(args[1], out TaskStatus status)){
+                else if (CheckArgsNumber(args.Length, ArgumentCounts.Two) && ParseEnum(args[ArgumentCounts.One], out TaskStatus status)){
                     Result result = TaskManager.GetTasks(status);
                     HandleResult(result, GetListTaskModelData, args);
                 }
                 else PrintUsage(CommandNames.List);
             }},
+            /// <summary>
+            /// Handles the help command by checking the number of arguments.
+            /// If the arguments are valid, it prints the help message for the specified command or a default help message if the command is not recognized.
+            /// </summary>
             { CommandNames.Help, args => {
                 if ( CheckArgsNumber(args.Length, ArgumentCounts.Two))
                 {
-                    if (HelpMessages._helpMessages.ContainsKey(args[1])) Console.WriteLine(HelpMessages._helpMessages[args[1]]);
+                    if (HelpMessages._helpMessages.ContainsKey(args[ArgumentCounts.One])) Console.WriteLine(HelpMessages._helpMessages[args[ArgumentCounts.One]]);
                     else Console.WriteLine("Command not recognized");
                 }
                 else PrintUsage(CommandNames.Help);
@@ -118,7 +154,7 @@ public class TaskCliController
     {
         if (data is int id)
         {
-            Result r = TaskManager.AddTask(new TaskModel { Id = id, Description = args[1] });
+            Result r = TaskManager.AddTask(new TaskModel { Id = id, Description = args[ArgumentCounts.One] });
             Console.WriteLine(r.Message);
         }
         else Console.WriteLine("Unexpected data type.");
@@ -170,7 +206,7 @@ public class TaskCliController
             return;
         }
 
-        string command = args[0].ToLower();
+        string command = args[ArgumentCounts.Zero].ToLower();
         if (_commands.ContainsKey(command)) _commands[command](args);
         else PrintUsage(CommandNames.Help);
     }
