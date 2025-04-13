@@ -1,3 +1,12 @@
+/// <summary>
+/// This file contains constants used throughout the application.
+/// It includes command names, help messages, and file paths.
+/// </summary>
+/// <remarks>
+/// The constants are organized into static classes for better organization and readability.
+/// Each class contains related constants, such as command names, help messages, and file paths.
+/// This structure allows for easy access and modification of constants as needed.
+/// </remarks>
 public static class FileConstants
 {
   public const string JSONL_FILE_PATH = "data.jsonl";
