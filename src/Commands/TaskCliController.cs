@@ -200,7 +200,7 @@ public class TaskCliController
     /// </remarks>
     public void ExecuteCommand(string[] args)
     {
-        if (args.Length == ArgumentCounts.Zero)
+        if (args.Length == 0)
         {
             PrintUsage(CommandNames.Help);
             return;
