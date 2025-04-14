@@ -207,7 +207,11 @@ public class TaskCliController
         }
 
         string command = args[ArgumentCounts.Zero].ToLower();
-        if (_commands.ContainsKey(command)) _commands[command](args);
+        if (_commands.ContainsKey(command)){
+           Result result = TaskManager.VerifyDirectory();
+           if (result.State) _commands[command](args);
+           else Console.WriteLine(result.Message);
+        }
         else PrintUsage(CommandNames.Help);
     }
 

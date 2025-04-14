@@ -9,7 +9,7 @@
 /// </remarks>
 public static class FileConstants
 {
-  public const string JSONL_FILE_PATH = "data.jsonl";
+  public static readonly string JsonFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),"task-traker", "data.jsonl");
 }
 
 public static class CommandNames

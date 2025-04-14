@@ -6,6 +6,50 @@ using System.Text.Json;
 public static class TaskManager
 {
     /// <summary>
+    ///  Verifies if the directory for the JSONL file exists and creates it if it doesn't.
+    /// </summary>
+    /// <remarks>
+    /// The method checks if the directory specified in <c>FileConstants.JsonFilePath</c> exists.
+    /// If it doesn't, it creates the directory.
+    /// If the directory already exists, it returns a success message.
+    /// </remarks>
+    /// <exception cref="UnauthorizedAccessException">Thrown when the directory is not accessible.</exception>
+    /// <exception cref="NotSupportedException">Thrown when the directory format is not supported.</exception>
+    /// <exception cref="IOException">Thrown when an I/O error occurs while creating the directory.</exception>
+    /// <exception cref="Exception">Thrown when an unexpected error occurs.</exception>
+    /// <returns>A Result object indicating the success or failure of the operation.</returns>
+    public static Result VerifyDirectory()
+    {
+        try
+        {
+            string dp = Path.GetDirectoryName(FileConstants.JsonFilePath)!; //dp stands for directory path
+            if (!Directory.Exists(dp))
+            {
+                Directory.CreateDirectory(dp);
+                return Result.Success($"Folder {dp} was created successfully.", null);
+            }
+
+            return Result.Success($"Folder {dp} already exists.", null);
+        }
+        catch (UnauthorizedAccessException e)
+        {
+            return Result.Failure($"Folder {Path.GetDirectoryName(Path.GetDirectoryName(FileConstants.JsonFilePath))} is not accessible.\nDetails: {e.Message}", null);
+        }
+        catch (NotSupportedException e)
+        {
+            return Result.Failure($"An error occurred while creating the folder {Path.GetDirectoryName(FileConstants.JsonFilePath)}.\nDetails: {e.Message}", null);
+        }
+        catch (IOException e)
+        {
+            return Result.Failure($"An error occurred while creating the folder{Path.GetDirectoryName(FileConstants.JsonFilePath)}.\nDetails: {e.Message}", null);
+        }
+        catch (Exception e)
+        {
+            return Result.Failure(e.Message, null);
+        }
+    }
+
+    /// <summary>
     /// Adds a new task to the JSONL file.
     /// </summary>
     /// <param name="task">The task to be added.</param>
@@ -24,19 +68,19 @@ public static class TaskManager
         try
         {
             string taskJson = JsonSerializer.Serialize(task);
-            File.AppendAllText(FileConstants.JSONL_FILE_PATH, taskJson + Environment.NewLine);
+            File.AppendAllText(FileConstants.JsonFilePath, taskJson + Environment.NewLine);
         }
-        catch (UnauthorizedAccessException e) 
+        catch (UnauthorizedAccessException e)
         {
-            return Result.Failure($"File {FileConstants.JSONL_FILE_PATH} is not accessible.\nDetails: {e.Message}", null);
+            return Result.Failure($"File {FileConstants.JsonFilePath} is not accessible.\nDetails: {e.Message}", null);
         }
         catch (NotSupportedException e)
         {
-            return Result.Failure($"An error occurred while writing the file {FileConstants.JSONL_FILE_PATH}.\nDetails: {e.Message}", null);
+            return Result.Failure($"An error occurred while writing the file {FileConstants.JsonFilePath}.\nDetails: {e.Message}", null);
         }
         catch (IOException e)
         {
-            return Result.Failure($"An error occurred while writing the file {FileConstants.JSONL_FILE_PATH}.\nDetails: {e.Message}", null);
+            return Result.Failure($"An error occurred while writing the file {FileConstants.JsonFilePath}.\nDetails: {e.Message}", null);
         }
         catch (JsonException e)
         {
@@ -70,9 +114,9 @@ public static class TaskManager
         List<TaskModel> tasks = new List<TaskModel>();
         try
         {
-            if (File.Exists(FileConstants.JSONL_FILE_PATH))
+            if (File.Exists(FileConstants.JsonFilePath))
             {
-                foreach (string line in File.ReadLines(FileConstants.JSONL_FILE_PATH))
+                foreach (string line in File.ReadLines(FileConstants.JsonFilePath))
                 {
                     TaskModel? task = JsonSerializer.Deserialize<TaskModel>(line);
 
@@ -84,20 +128,20 @@ public static class TaskManager
             }
             else
             {
-                return Result.Failure($"File {FileConstants.JSONL_FILE_PATH} does not exist.", null);
+                return Result.Failure($"File {FileConstants.JsonFilePath} does not exist.", null);
             }
         }
         catch (UnauthorizedAccessException e)
         {
-            return Result.Failure($"File {FileConstants.JSONL_FILE_PATH} is not accessible.\nDetails: {e.Message}", null);
+            return Result.Failure($"File {FileConstants.JsonFilePath} is not accessible.\nDetails: {e.Message}", null);
         }
         catch (NotSupportedException e)
         {
-            return Result.Failure($"An error occurred while reading the file {FileConstants.JSONL_FILE_PATH}.\nDetails: {e.Message}", null);
+            return Result.Failure($"An error occurred while reading the file {FileConstants.JsonFilePath}.\nDetails: {e.Message}", null);
         }
         catch (IOException e)
         {
-            return Result.Failure($"An error occurred while reading the file {FileConstants.JSONL_FILE_PATH}.\nDetails: {e.Message}", null);
+            return Result.Failure($"An error occurred while reading the file {FileConstants.JsonFilePath}.\nDetails: {e.Message}", null);
         }
         catch (JsonException e)
         {
@@ -137,9 +181,9 @@ public static class TaskManager
 
         try
         {
-            if (File.Exists(FileConstants.JSONL_FILE_PATH))
+            if (File.Exists(FileConstants.JsonFilePath))
             {
-                foreach (string line in File.ReadLines(FileConstants.JSONL_FILE_PATH))
+                foreach (string line in File.ReadLines(FileConstants.JsonFilePath))
                 {
                     TaskModel? task = JsonSerializer.Deserialize<TaskModel>(line);
                     string taskLine = line;
@@ -174,26 +218,26 @@ public static class TaskManager
 
                 if (exists)
                 {
-                    File.WriteAllLines(FileConstants.JSONL_FILE_PATH, tasksLines);
+                    File.WriteAllLines(FileConstants.JsonFilePath, tasksLines);
                     return Result.Success($"Task (ID: {id}) updated successfully.", null);
                 }
             }
             else
             {
-                return Result.Failure($"File {FileConstants.JSONL_FILE_PATH} does not exist.", null);
+                return Result.Failure($"File {FileConstants.JsonFilePath} does not exist.", null);
             }
         }
         catch (UnauthorizedAccessException e)
         {
-            return Result.Failure($"File {FileConstants.JSONL_FILE_PATH} is not accessible.\nDetails: {e.Message}", null);
+            return Result.Failure($"File {FileConstants.JsonFilePath} is not accessible.\nDetails: {e.Message}", null);
         }
         catch (NotSupportedException e)
         {
-            return Result.Failure($"An error occurred while reading the file {FileConstants.JSONL_FILE_PATH}.\nDetails: {e.Message}", null);
+            return Result.Failure($"An error occurred while reading the file {FileConstants.JsonFilePath}.\nDetails: {e.Message}", null);
         }
         catch (IOException e)
         {
-            return Result.Failure($"An error occurred while reading the file {FileConstants.JSONL_FILE_PATH}.\nDetails: {e.Message}", null);
+            return Result.Failure($"An error occurred while reading the file {FileConstants.JsonFilePath}.\nDetails: {e.Message}", null);
         }
         catch (JsonException e)
         {
@@ -214,9 +258,9 @@ public static class TaskManager
 
         try
         {
-            if (File.Exists(FileConstants.JSONL_FILE_PATH))
+            if (File.Exists(FileConstants.JsonFilePath))
             {
-                foreach (string line in File.ReadLines(FileConstants.JSONL_FILE_PATH))
+                foreach (string line in File.ReadLines(FileConstants.JsonFilePath))
                 {
                     TaskModel? task = JsonSerializer.Deserialize<TaskModel>(line);
                     if (task is not null)
@@ -228,26 +272,26 @@ public static class TaskManager
 
                 if (exists)
                 {
-                    File.WriteAllLines(FileConstants.JSONL_FILE_PATH, tasksLines);
+                    File.WriteAllLines(FileConstants.JsonFilePath, tasksLines);
                     return Result.Success($"Task (ID: {id}) deleted successfully.", null);
                 }
             }
             else
             {
-                return Result.Failure($"File {FileConstants.JSONL_FILE_PATH} does not exist.", null);
+                return Result.Failure($"File {FileConstants.JsonFilePath} does not exist.", null);
             }
         }
         catch (UnauthorizedAccessException e)
         {
-            return Result.Failure($"File {FileConstants.JSONL_FILE_PATH} is not accessible.\nDetails: {e.Message}", null);
+            return Result.Failure($"File {FileConstants.JsonFilePath} is not accessible.\nDetails: {e.Message}", null);
         }
         catch (NotSupportedException e)
         {
-            return Result.Failure($"An error occurred while reading the file {FileConstants.JSONL_FILE_PATH}.\nDetails: {e.Message}", null);
+            return Result.Failure($"An error occurred while reading the file {FileConstants.JsonFilePath}.\nDetails: {e.Message}", null);
         }
         catch (IOException e)
         {
-            return Result.Failure($"An error occurred while reading the file {FileConstants.JSONL_FILE_PATH}.\nDetails: {e.Message}", null);
+            return Result.Failure($"An error occurred while reading the file {FileConstants.JsonFilePath}.\nDetails: {e.Message}", null);
         }
         catch (JsonException e)
         {
@@ -280,9 +324,9 @@ public static class TaskManager
 
         try
         {
-            if (File.Exists(FileConstants.JSONL_FILE_PATH))
+            if (File.Exists(FileConstants.JsonFilePath))
             {
-                string lastTask = File.ReadLines(FileConstants.JSONL_FILE_PATH).LastOrDefault(string.Empty);
+                string lastTask = File.ReadLines(FileConstants.JsonFilePath).LastOrDefault(string.Empty);
 
                 if (!string.IsNullOrEmpty(lastTask))
                 {
@@ -293,15 +337,15 @@ public static class TaskManager
         }
         catch (UnauthorizedAccessException e)
         {
-            return Result.Failure($"File {FileConstants.JSONL_FILE_PATH} is not accessible.\nDetails: {e.Message}", null);
+            return Result.Failure($"File {FileConstants.JsonFilePath} is not accessible.\nDetails: {e.Message}", null);
         }
         catch (NotSupportedException e)
         {
-            return Result.Failure($"An error occurred while reading the file {FileConstants.JSONL_FILE_PATH}.\nDetails: {e.Message}", null);
+            return Result.Failure($"An error occurred while reading the file {FileConstants.JsonFilePath}.\nDetails: {e.Message}", null);
         }
         catch (IOException e)
         {
-            return Result.Failure($"An error occurred while reading the file {FileConstants.JSONL_FILE_PATH}.\nDetails: {e.Message}", null);
+            return Result.Failure($"An error occurred while reading the file {FileConstants.JsonFilePath}.\nDetails: {e.Message}", null);
         }
         catch (JsonException e)
         {
