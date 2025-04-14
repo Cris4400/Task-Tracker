@@ -1,6 +1,7 @@
 # Task-Tracker
 
-Task-Tracker is a command-line interface (CLI) tool that enables users to create, read, update, and delete tasks stored in a JSONL file. With attributes like ID, description, status, and timestamps, it provides a simple and efficient way to manage personal tasks.
+Task-Tracker is a command-line interface (CLI) tool that enables users to create, read, update, and delete tasks stored in a JSONL file. With attributes like ID, description, status, and timestamps, it provides a simple and efficient way to manage personal tasks. 
+This project was created by following the specifications from [roadmap.sh's Task Tracker project](https://roadmap.sh/projects/task-tracker).
 
 ## Overview
 
@@ -118,13 +119,13 @@ Use the `task-cli` command to manage tasks with the following syntax:
 
 ## Data Storage
 
-Tasks are stored in a `data.jsonl` file within a `TaskCLI` subdirectory in the application's data directory:  
+Tasks are stored in a `data.jsonl` file within a `task-tracker` subdirectory in the application's data directory:  
 
-- Windows: `%APPDATA%\TaskCLI\data.jsonl`  
-- Linux: `~/.config/TaskCLI\data.jsonl`  
-- macOS: `~/Library/Application Support/TaskCLI\data.jsonl`
+- Windows: `%APPDATA%\task-tracker\data.jsonl`  
+- Linux: `~/.config/task-tracker/data.jsonl`  
+- macOS: `~/Library/Application Support/task-tracker/data.jsonl`
 
-The `TaskCLI` directory is created automatically on first use. Each line in `data.jsonl` is a JSON object containing a task’s ID, description, status, and timestamps. You can inspect or edit this file manually, but use the CLI to avoid formatting errors.
+The `task-tracker` directory is created automatically on first use. Each line in `data.jsonl` is a JSON object containing a task’s ID, description, status, and timestamps. You can inspect or edit this file manually, but use the CLI to avoid formatting errors.
 
 ## How It Works
 
@@ -138,7 +139,39 @@ This approach ensures simplicity and is suitable for small to medium task lists.
 
 ## Troubleshooting
 
-- "Permission denied": Ensure write access to the application data directory. On Windows, try running the terminal as administrator.  
-- "`task-cli` not found": Check global installation with `dotnet tool list --global` and reinstall if needed.  
-- Missing `data.jsonl`: The file is created automatically when you perform your first operation.  
-- Invalid command or ID: Use `task-cli help` to verify commands or ensure the task ID exists.  
+- **"Permission denied"**:  
+  Ensure you have write access to the application data directory. On Windows, try running the terminal as administrator.
+  
+
+- **"`task-cli` not found"**:  
+  First, verify the tool is installed globally:
+
+    dotnet tool list --global
+
+  If it’s not listed, reinstall it using:
+
+    dotnet tool install --global --add-source ./nupkg Task-Tracker
+
+  On **Linux**, you might also need to manually add the `.dotnet/tools` directory to your `$PATH`. You can do this by running:
+
+    `export PATH="$PATH:$HOME/.dotnet/tools"`
+
+  To make it permanent, add the following line to your shell's profile file:
+
+  - For **Bash**: `~/.bashrc`
+  - For **Zsh**: `~/.zshrc`
+  - For **Fish**: `~/.config/fish/config.fish`
+
+  Example (Bash):
+    ```bash
+    echo 'export PATH="$PATH:$HOME/.dotnet/tools"' >> ~/.bashrc
+    source ~/.bashrc
+    ```
+
+  After this, `task-cli` should work from any terminal session.
+
+- **Missing `data.jsonl`**:  
+  Don’t worry — the file is created automatically the first time you add a task.
+
+- **Invalid command or ID**:  
+  Use `task-cli help` to check available commands or confirm the task ID exists.
