@@ -2,7 +2,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.2.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Task-Traker", "Task-Traker.csproj", "{A72C7037-C679-9EF2-EB48-6F87B08B1C0B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Task-Tracker", "Task-Tracker.csproj", "{A72C7037-C679-9EF2-EB48-6F87B08B1C0B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

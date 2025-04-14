@@ -15,7 +15,7 @@ public enum TaskStatus
 }
 
 /// <summary>
-/// Class <c>TaskModel</c> represents a task stored in the Task-Traker application's JSONL file with properties such as Id, Description, Status, CreatedAt, and UpdatedAt.
+/// Class <c>TaskModel</c> represents a task stored in the Task-Tracker application's JSONL file with properties such as Id, Description, Status, CreatedAt, and UpdatedAt.
 /// </summary>
 public class TaskModel
 {

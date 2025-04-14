@@ -1,7 +1,7 @@
 using System.Text.Json;
 
 /// <summary>
-/// Class <c>TaskManager</c> provides methods to manage tasks in the Task-Traker application, including adding, retrieving, updating, and deleting tasks from a JSONL file.
+/// Class <c>TaskManager</c> provides methods to manage tasks in the Task-Tracker application, including adding, retrieving, updating, and deleting tasks from a JSONL file.
 /// </summary>
 public static class TaskManager
 {

@@ -1,5 +1,5 @@
 ﻿/// <summary>
-/// The entry point for the Task-Traker application, which is a command-line task management tool.
+/// The entry point for the Task-Tracker application, which is a command-line task management tool.
 /// It allows users to add, update, delete, and list tasks with various statuses.
 /// </summary>
 /// remarks>
